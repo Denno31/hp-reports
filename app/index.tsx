@@ -3,8 +3,7 @@ import React, { useEffect, useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { fetchLatestReports } from "@/api/api";
 import { Entypo, Ionicons, MaterialIcons } from "@expo/vector-icons";
-
-import { Link, router } from "expo-router";
+import { router } from "expo-router";
 
 const HomeScreen = () => {
   const [latestReports, setLatestReports] = useState([]);
@@ -12,7 +11,7 @@ const HomeScreen = () => {
 
   const loadReports = async () => {
     try {
-      const results = await fetchLatestReports(240);
+      const results = await fetchLatestReports(284);
       setLatestReports(results);
     } catch (error) {
       console.error("Error fetching reports:", error);
@@ -23,8 +22,11 @@ const HomeScreen = () => {
     loadReports();
   }, []);
 
-  const formatFileName = (fileName) => {
-    return fileName.length > 30 ? fileName.substring(0, 27) + "..." : fileName;
+  const cleanFileName = (fileName: string) => {
+    return fileName
+      .replace(/^(\d{2}-\d{2}-\d{4}_284_?)/, "") // Remove leading date & "284"
+      .replace(/_/g, " ") // Replace underscores with spaces
+      .trim();
   };
 
   return (
@@ -34,9 +36,8 @@ const HomeScreen = () => {
         <View className="flex-row items-center gap-4">
           <Ionicons name="reader" size={28} color="black" />
           <Text className="text-xl font-semibold">
-            Latest HotelPlus <Text className="text-red-500">Reports</Text>
+            Latest HotelPlus <Text className="text-red-[#007AFF]">Reports</Text>
           </Text>
-          <Link href="/pdfviewer">dddd</Link>
         </View>
         {/* Toggle Button */}
         <TouchableOpacity onPress={() => setIsGridView(!isGridView)}>
@@ -56,21 +57,18 @@ const HomeScreen = () => {
         numColumns={isGridView ? 2 : 1}
         contentContainerStyle={{ paddingHorizontal: 10 }}
         columnWrapperStyle={
-          isGridView ? { justifyContent: "space-between" } : null
+          isGridView ? { justifyContent: "space-between" } : undefined
         }
         renderItem={({ item }) => {
           const fileName = item.split("/").pop();
-          const fileDate = fileName.split("_")[0];
+          const fileDate = fileName.match(/\d{2}-\d{2}-\d{4}/)?.[0] || "";
+          const cleanedFileName = cleanFileName(fileName);
           const fileUrl = `https://licensing.hotelplus.ke/hotelplusv9/uploads/managementreports/284/${fileName}`;
-          const shortFileName = formatFileName(fileName);
 
           return (
             <TouchableOpacity
               onPress={() =>
-                router.push({
-                  pathname: "/pdfviewer",
-                  params: { fileUrl },
-                })
+                router.push({ pathname: "/pdfviewer", params: { fileUrl } })
               }
               className={`p-4 border border-gray-200 rounded-lg m-2 ${
                 isGridView
@@ -87,32 +85,24 @@ const HomeScreen = () => {
                   <Text
                     className="font-semibold text-sm text-center"
                     numberOfLines={2}
-                    ellipsizeMode="tail"
                   >
-                    {shortFileName}
+                    {cleanedFileName}
                   </Text>
                   <Text className="text-xs text-gray-400">{fileDate}</Text>
                 </View>
               ) : (
-                <View className="flex-row items-center gap-4">
+                <View className="flex-row items-center gap-4 flex-1">
                   <Image
                     className="w-10 h-10"
                     source={require("../assets/images/pdf-svgrepo-com.png")}
                   />
                   <View className="flex-1">
-                    <Text
-                      className="font-semibold text-sm"
-                      numberOfLines={2}
-                      ellipsizeMode="tail"
-                    >
-                      {shortFileName}
+                    <Text className="font-semibold text-sm" numberOfLines={2}>
+                      {cleanedFileName}
                     </Text>
                     <Text className="text-xs text-gray-400">{fileDate}</Text>
                   </View>
                 </View>
-              )}
-              {!isGridView && (
-                <Entypo name="dots-three-vertical" size={18} color="gray" />
               )}
             </TouchableOpacity>
           );

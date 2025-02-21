@@ -1,13 +1,17 @@
-export const fetchLatestReports = async (clientId: number) => {
+export const fetchLatestReports = async (clientId: number, date?: string) => {
   try {
-    let response = await fetch(
-      `https://licensing.hotelplus.ke/hotelplusv9/get_latest_reports.php?client_id=${clientId}`
-    );
+    let url = `https://licensing.hotelplus.ke/hotelplusv9/get_latest_reports.php?client_id=${clientId}`;
+    if (date) {
+      url += `&selected_date=${date}`;
+    }
+
+    let response = await fetch(url);
     let files = await response.json();
 
-    console.log(files); // Array of latest files
+    console.log("Fetched reports:", files);
     return files;
   } catch (error) {
     console.error("Error fetching reports:", error);
+    return [];
   }
 };
