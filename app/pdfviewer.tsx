@@ -1,27 +1,62 @@
-import { useLocalSearchParams } from "expo-router";
 import React from "react";
-import { Text } from "react-native";
-// import { View, ActivityIndicator, Text } from "react-native";
-// import Pdf from "react-native-pdf";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { View, StyleSheet, TouchableOpacity, Text } from "react-native";
+import WebView from "react-native-webview";
+import * as FileSystem from "expo-file-system";
+import * as Sharing from "expo-sharing";
 
 const PDFViewer = () => {
-  const { url } = useLocalSearchParams();
-  console.log(url);
-  // const { fileUrl } = route.params;
+  const url =
+    "https://licensing.hotelplus.ke/hotelplusv9/uploads/managementreports/284/20-02-2025_284_Daily%20Revenue%20Report.pdf";
+  const googleDocsViewer = `https://docs.google.com/gview?embedded=true&url=${encodeURIComponent(
+    url
+  )}`;
+
+  // 📌 Function to Download PDF
+  const downloadPDF = async () => {
+    try {
+      const fileUri = FileSystem.documentDirectory + "report.pdf";
+      const { uri } = await FileSystem.downloadAsync(url, fileUri);
+      console.log("PDF downloaded to:", uri);
+
+      // Open share dialog
+      if (await Sharing.isAvailableAsync()) {
+        await Sharing.shareAsync(uri);
+      } else {
+        alert("Sharing is not available on this device");
+      }
+    } catch (error) {
+      console.error("Error downloading PDF:", error);
+    }
+  };
 
   return (
-    <SafeAreaView className="flex-1">
-      {/* <Pdf
-        source={{ uri: fileUrl, cache: true }}
-        style={{ flex: 1 }}
-        onLoad={() => console.log("PDF Loaded")}
-        onError={(error) => console.log("Error loading PDF", error)}
-        renderActivityIndicator={() => <ActivityIndicator size="large" />}
-      /> */}
-      <Text>PDF Viewer</Text>
-    </SafeAreaView>
+    <View style={styles.container}>
+      {/* WebView for PDF */}
+      <WebView source={{ uri: googleDocsViewer }} style={styles.webview} />
+
+      {/* Download Button */}
+      <TouchableOpacity style={styles.downloadButton} onPress={downloadPDF}>
+        <Text style={styles.buttonText}>Download PDF</Text>
+      </TouchableOpacity>
+    </View>
   );
 };
+
+const styles = StyleSheet.create({
+  container: { flex: 1 },
+  webview: { flex: 1 },
+  downloadButton: {
+    position: "absolute",
+    bottom: 20,
+    right: 20,
+    backgroundColor: "#007AFF",
+    padding: 10,
+    borderRadius: 5,
+  },
+  buttonText: {
+    color: "white",
+    fontWeight: "bold",
+  },
+});
 
 export default PDFViewer;
