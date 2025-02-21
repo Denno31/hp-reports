@@ -2,8 +2,9 @@ import { View, Text, TouchableOpacity, FlatList, Image } from "react-native";
 import React, { useEffect, useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { fetchLatestReports } from "@/api/api";
-import { Entypo, Ionicons, MaterialIcons } from "@expo/vector-icons";
+import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 import { router } from "expo-router";
+const client_id = 284;
 
 const HomeScreen = () => {
   const [latestReports, setLatestReports] = useState([]);
@@ -11,7 +12,7 @@ const HomeScreen = () => {
 
   const loadReports = async () => {
     try {
-      const results = await fetchLatestReports(284);
+      const results = await fetchLatestReports(client_id);
       setLatestReports(results);
     } catch (error) {
       console.error("Error fetching reports:", error);
@@ -22,9 +23,31 @@ const HomeScreen = () => {
     loadReports();
   }, []);
 
+  // Function to extract and format date
+  const extractAndFormatDate = (fileName: string) => {
+    // Match both `DD-MM-YYYY` and `YYYY-MM-DD`
+    const match =
+      fileName.match(/(\d{2}-\d{2}-\d{4})/) || // DD-MM-YYYY
+      fileName.match(/(\d{4}-\d{2}-\d{2})/); // YYYY-MM-DD
+
+    if (!match) return ""; // Return empty if no date found
+
+    const rawDate = match[1];
+
+    // Convert YYYY-MM-DD → DD-MM-YYYY
+    if (rawDate.includes("-") && rawDate.split("-")[0].length === 4) {
+      const [year, month, day] = rawDate.split("-");
+      return `${day}-${month}-${year}`;
+    }
+
+    return rawDate; // Return as is if already in DD-MM-YYYY
+  };
+
+  // Function to clean filename
   const cleanFileName = (fileName: string) => {
     return fileName
       .replace(/^(\d{2}-\d{2}-\d{4}_284_?)/, "") // Remove leading date & "284"
+      .replace(/^(\d{4}-\d{2}-\d{2}_284_?)/, "") // Remove YYYY-MM-DD format
       .replace(/_/g, " ") // Replace underscores with spaces
       .trim();
   };
@@ -60,10 +83,10 @@ const HomeScreen = () => {
           isGridView ? { justifyContent: "space-between" } : undefined
         }
         renderItem={({ item }) => {
-          const fileName = item.split("/").pop();
-          const fileDate = fileName.match(/\d{2}-\d{2}-\d{4}/)?.[0] || "";
+          const fileName = item.split("/").pop() || "";
+          const fileDate = extractAndFormatDate(fileName);
           const cleanedFileName = cleanFileName(fileName);
-          const fileUrl = `https://licensing.hotelplus.ke/hotelplusv9/uploads/managementreports/284/${fileName}`;
+          const fileUrl = `https://licensing.hotelplus.ke/hotelplusv9/uploads/managementreports/${client_id}/${fileName}`;
 
           return (
             <TouchableOpacity
@@ -88,7 +111,9 @@ const HomeScreen = () => {
                   >
                     {cleanedFileName}
                   </Text>
-                  <Text className="text-xs text-gray-400">{fileDate}</Text>
+                  {fileDate ? (
+                    <Text className="text-xs text-gray-400">{fileDate}</Text>
+                  ) : null}
                 </View>
               ) : (
                 <View className="flex-row items-center gap-4 flex-1">
@@ -100,7 +125,9 @@ const HomeScreen = () => {
                     <Text className="font-semibold text-sm" numberOfLines={2}>
                       {cleanedFileName}
                     </Text>
-                    <Text className="text-xs text-gray-400">{fileDate}</Text>
+                    {fileDate ? (
+                      <Text className="text-xs text-gray-400">{fileDate}</Text>
+                    ) : null}
                   </View>
                 </View>
               )}
