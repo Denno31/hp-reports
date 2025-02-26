@@ -4,9 +4,11 @@ import { useEffect, useState } from "react";
 export const useReportsData = ({
   clientId,
   reportDate,
+  isMonthly = false,
 }: {
   clientId: number;
   reportDate?: string;
+  isMonthly?: boolean;
 }) => {
   const [reportData, setReportData] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -15,7 +17,7 @@ export const useReportsData = ({
   const loadReports = async () => {
     try {
       setLoading(true);
-      const results = await fetchLatestReports(clientId, reportDate);
+      const results = await fetchLatestReports(clientId, reportDate, isMonthly);
       setReportData(results);
     } catch (error) {
       console.error("Error fetching reports:", error);
@@ -29,5 +31,5 @@ export const useReportsData = ({
     loadReports();
   }, [reportDate]);
 
-  return { data: reportData, loading, error };
+  return { data: reportData, loading, error, loadReports };
 };
