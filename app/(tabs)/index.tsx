@@ -12,7 +12,7 @@ import React, { useEffect, useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { fetchLatestReports } from "@/api/api";
 import { Ionicons, MaterialIcons } from "@expo/vector-icons";
-import { router } from "expo-router";
+import { Link, router } from "expo-router";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { useReportsData } from "@/hooks/useReportsData";
 import { cleanFileName, extractAndFormatDate } from "@/utils/utils";

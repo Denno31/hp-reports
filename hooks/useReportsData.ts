@@ -17,7 +17,7 @@ export const useReportsData = ({
   const loadReports = async () => {
     try {
       setLoading(true);
-      const results = await fetchLatestReports(clientId, reportDate, isMonthly);
+      const results = await fetchLatestReports(reportDate, isMonthly);
       setReportData(results);
     } catch (error) {
       console.error("Error fetching reports:", error);
