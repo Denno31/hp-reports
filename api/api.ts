@@ -1,6 +1,6 @@
 export const fetchLatestReports = async (clientId: number, date?: string) => {
   try {
-    let url = `https://licensing.hotelplus.ke/hotelplusv9/get_latest_reports.php?client_id=${clientId}`;
+    let url = `hotelplustech.com/hotelplusv9/get_latest_reports.php?client_id=${clientId}`;
     if (date) {
       url += `&selected_date=${date}`;
     }
