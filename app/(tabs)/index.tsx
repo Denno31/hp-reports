@@ -3,37 +3,56 @@ import {
   Text,
   TouchableOpacity,
   FlatList,
-  Image,
-  Pressable,
-  RefreshControl,
   ActivityIndicator,
+  RefreshControl,
 } from "react-native";
 import React, { useEffect, useState } from "react";
-import { SafeAreaView } from "react-native-safe-area-context";
-import { fetchLatestReports } from "@/api/api";
-import { Ionicons, MaterialIcons } from "@expo/vector-icons";
-import { Link, router } from "expo-router";
-import DateTimePicker from "@react-native-community/datetimepicker";
+import { MaterialIcons } from "@expo/vector-icons";
+import { baseUrl } from "@/api/api";
 import { useReportsData } from "@/hooks/useReportsData";
 import { cleanFileName, extractAndFormatDate } from "@/utils/utils";
 import FileCard from "@/components/FileCard";
-export const client_id = 284;
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const HomeScreen = () => {
-  const [datePickerIsVisible, setDatePickerIsVisible] = useState(false);
+  const [clientId, setClientId] = useState<number | null>(null);
+  const [token, setToken] = useState<string | null>(null);
+  const [isGridView, setIsGridView] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
+
+  useEffect(() => {
+    const loadUserData = async () => {
+      try {
+        const userInfo = await AsyncStorage.getItem("userInfo");
+        if (userInfo) {
+          const { token, clientId } = JSON.parse(userInfo);
+          setToken(token);
+          setClientId(clientId);
+        }
+      } catch (error) {
+        console.error("Failed to load user info:", error);
+      }
+    };
+    loadUserData();
+  }, []);
+
+  // Fetch latest reports only when clientId is available
   const {
     data: latestReports,
     loading,
     error,
     loadReports,
-  } = useReportsData({ clientId: client_id });
-  const [isGridView, setIsGridView] = useState(false);
-  const [refreshing, setRefreshing] = useState(false);
+  } = useReportsData({});
+
   const handleRefresh = async () => {
     setRefreshing(true);
     await loadReports();
     setRefreshing(false);
   };
+
+  if (clientId === null) {
+    return <ActivityIndicator size="large" color="#93c5fd" />;
+  }
 
   return (
     <View className="flex-1">
@@ -67,7 +86,7 @@ const HomeScreen = () => {
             const fileName = (item as string).split("/").pop() || "";
             const fileDate = extractAndFormatDate(fileName);
             const cleanedFileName = cleanFileName(fileName);
-            const fileUrl = `https://licensing.hotelplus.ke/hotelplusv9/uploads/managementreports/${client_id}/${fileName}`;
+            const fileUrl = `${baseUrl}uploads/managementreports/${clientId}/${fileName}.pdf`;
 
             return (
               <FileCard

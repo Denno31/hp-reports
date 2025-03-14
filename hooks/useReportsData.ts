@@ -2,11 +2,9 @@ import { fetchLatestReports } from "@/api/api";
 import { useEffect, useState } from "react";
 
 export const useReportsData = ({
-  clientId,
   reportDate,
   isMonthly = false,
 }: {
-  clientId: number;
   reportDate?: string;
   isMonthly?: boolean;
 }) => {

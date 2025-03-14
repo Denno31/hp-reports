@@ -10,7 +10,7 @@ import {
 } from "react-native";
 import React, { useEffect, useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { fetchLatestReports } from "@/api/api";
+import { baseUrl, fetchLatestReports } from "@/api/api";
 import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import DateTimePicker from "@react-native-community/datetimepicker";
@@ -88,7 +88,7 @@ const MonthlyReports = () => {
           renderItem={({ item }) => {
             const fileName = (item as string).split("/").pop() || "";
             const formattedDate = extractFormattedDate(fileName);
-            const fileUrl = `https://licensing.hotelplus.ke/hotelplusv9/uploads/managementreports/${client_id}/${fileName}`;
+            const fileUrl = `${baseUrl}uploads/managementreports/${client_id}/${fileName}`;
 
             return (
               <FileCard

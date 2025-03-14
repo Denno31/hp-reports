@@ -1,6 +1,6 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-const baseUrl = "https://licensing.hotelplus.ke/hotelplusv9/";
+export const baseUrl = "https://hotelplustech.com/hotelplusv9/";
 const reportResource = {
   monthly: "monthly_reports.php",
   latestReports: "get_latest_reports.php",

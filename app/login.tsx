@@ -10,6 +10,7 @@ import {
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { router, Stack } from "expo-router";
+import { baseUrl } from "@/api/api";
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -24,15 +25,12 @@ const Login = () => {
 
     setLoading(true);
     try {
-      const response = await fetch(
-        "https://licensing.hotelplus.ke/hotelplusv9/reports_login.php",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email, password }),
-        }
-      );
-
+      const response = await fetch(`${baseUrl}/reports_login.php`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
+      console.log("Login response:", response);
       const data = await response.json();
       console.log(data);
 

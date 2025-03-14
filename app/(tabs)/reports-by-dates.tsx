@@ -14,6 +14,7 @@ import { useReportsData } from "@/hooks/useReportsData";
 import { client_id } from ".";
 import { cleanFileName, extractAndFormatDate } from "@/utils/utils";
 import FileCard from "@/components/FileCard";
+import { baseUrl } from "@/api/api";
 
 const ReportsByDates = () => {
   const [isGridView, setIsGridView] = useState(false);
@@ -82,7 +83,7 @@ const ReportsByDates = () => {
             const fileName = (item as string).split("/").pop() || "";
             const fileDate = extractAndFormatDate(fileName);
             const cleanedFileName = cleanFileName(fileName);
-            const fileUrl = `https://licensing.hotelplus.ke/hotelplusv9/uploads/managementreports/${client_id}/${fileName}`;
+            const fileUrl = `${baseUrl}hotelplusv9/uploads/managementreports/${client_id}/${fileName}`;
 
             return (
               <FileCard
