@@ -62,7 +62,7 @@ export default function TabLayout() {
           ),
         }}
       />
-      <Tabs.Screen
+      {/* <Tabs.Screen
         name="monthly-reports"
         options={{
           title: "Monthly",
@@ -70,7 +70,7 @@ export default function TabLayout() {
             <MaterialIcons name="date-range" size={size} color={color} />
           ),
         }}
-      />
+      /> */}
     </Tabs>
   );
 }
