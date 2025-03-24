@@ -17,18 +17,20 @@ import DateTimePicker from "@react-native-community/datetimepicker";
 import { useReportsData } from "@/hooks/useReportsData";
 import { cleanFileName, extractAndFormatDate } from "@/utils/utils";
 import FileCard from "@/components/FileCard";
-export const client_id = 284;
 
 import moment from "moment"; // Import Moment.js
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const MonthlyReports = () => {
   const [datePickerIsVisible, setDatePickerIsVisible] = useState(false);
+  const [clientId, setClientId] = useState<number | null>(null);
+  const [clientName, setClientName] = useState<string | null>(null);
   const {
     data: latestReports,
     loading,
     error,
     loadReports,
-  } = useReportsData({ clientId: client_id, isMonthly: true });
+  } = useReportsData({ isMonthly: true });
   const [isGridView, setIsGridView] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
 
@@ -57,10 +59,29 @@ const MonthlyReports = () => {
     );
   });
 
+  useEffect(() => {
+    const loadUserData = async () => {
+      try {
+        const userInfo = await AsyncStorage.getItem("userInfo");
+        if (userInfo) {
+          const { clientId, clientName } = JSON.parse(userInfo);
+          setClientId(clientId);
+          setClientName(clientName);
+        }
+      } catch (error) {
+        console.error("Failed to load user info:", error);
+      }
+    };
+    loadUserData();
+  }, []);
+
   return (
     <View className="flex-1">
       <View className="flex-row justify-between items-center p-4 bg-white shadow-md">
-        <Text className="text-lg font-bold text-gray-800">Reports</Text>
+        <Text className="text-lg font-bold text-gray-800">
+          {" "}
+          {clientId}-{clientName}
+        </Text>
         <TouchableOpacity
           onPress={() => setIsGridView(!isGridView)}
           className="bg-gray-200 p-2 rounded-full"
@@ -88,7 +109,7 @@ const MonthlyReports = () => {
           renderItem={({ item }) => {
             const fileName = (item as string).split("/").pop() || "";
             const formattedDate = extractFormattedDate(fileName);
-            const fileUrl = `${baseUrl}uploads/managementreports/${client_id}/${fileName}`;
+            const fileUrl = `${baseUrl}uploads/managementreports/${clientId}/${fileName}`;
 
             return (
               <FileCard

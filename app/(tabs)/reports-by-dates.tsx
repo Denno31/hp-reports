@@ -11,12 +11,14 @@ import { AntDesign, MaterialIcons } from "@expo/vector-icons";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import moment from "moment";
 import { useReportsData } from "@/hooks/useReportsData";
-import { client_id } from ".";
 import { cleanFileName, extractAndFormatDate } from "@/utils/utils";
 import FileCard from "@/components/FileCard";
 import { baseUrl } from "@/api/api";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const ReportsByDates = () => {
+  const [clientId, setClientId] = useState<number | null>(null);
+  const [clientName, setClientName] = useState<string | null>(null);
   const [isGridView, setIsGridView] = useState(false);
   const [datePickerIsVisible, setDatePickerIsVisible] = useState(false);
   const [selectedDate, setSelectedDate] = useState(new Date());
@@ -27,8 +29,7 @@ const ReportsByDates = () => {
     error,
     loadReports,
   } = useReportsData({
-    clientId: client_id,
-    reportDate: moment(selectedDate).format("DD-MM-YYYY"),
+    reportDate: moment(selectedDate).format("YYYY-MM-DD"),
   });
   const handleOpenDatePicker = () => {
     setDatePickerIsVisible(true);
@@ -40,10 +41,29 @@ const ReportsByDates = () => {
     setRefreshing(false);
   };
 
+  useEffect(() => {
+    const loadUserData = async () => {
+      try {
+        const userInfo = await AsyncStorage.getItem("userInfo");
+        if (userInfo) {
+          const { clientId, clientName } = JSON.parse(userInfo);
+          setClientId(clientId);
+          setClientName(clientName);
+        }
+      } catch (error) {
+        console.error("Failed to load user info:", error);
+      }
+    };
+    loadUserData();
+  }, []);
+
   return (
     <View className="flex-1">
       <View className="flex-row justify-between items-center p-4 bg-white shadow-md">
-        <Text className="text-lg font-bold text-gray-800">Reports</Text>
+        <Text className="text-lg font-bold text-gray-800">
+          {" "}
+          {clientId}-{clientName}
+        </Text>
         <TouchableOpacity
           onPress={() => setIsGridView(!isGridView)}
           className="bg-gray-200 p-2 rounded-full"
@@ -83,7 +103,7 @@ const ReportsByDates = () => {
             const fileName = (item as string).split("/").pop() || "";
             const fileDate = extractAndFormatDate(fileName);
             const cleanedFileName = cleanFileName(fileName);
-            const fileUrl = `${baseUrl}hotelplusv9/uploads/managementreports/${client_id}/${fileName}`;
+            const fileUrl = `${baseUrl}uploads/managementreports/${clientId}/${fileName}.pdf`;
 
             return (
               <FileCard
@@ -106,7 +126,6 @@ const ReportsByDates = () => {
           display="default"
           onChange={(event, selectedDate) => {
             if (selectedDate) {
-              console.log("Selected date:", selectedDate);
               setSelectedDate(selectedDate);
               setDatePickerIsVisible(false);
             }

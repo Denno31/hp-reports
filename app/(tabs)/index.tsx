@@ -16,6 +16,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const HomeScreen = () => {
   const [clientId, setClientId] = useState<number | null>(null);
+  const [clientName, setClientName] = useState<string | null>(null);
   const [token, setToken] = useState<string | null>(null);
   const [isGridView, setIsGridView] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
@@ -25,7 +26,8 @@ const HomeScreen = () => {
       try {
         const userInfo = await AsyncStorage.getItem("userInfo");
         if (userInfo) {
-          const { token, clientId } = JSON.parse(userInfo);
+          const { token, clientId, clientName } = JSON.parse(userInfo);
+          setClientName(clientName);
           setToken(token);
           setClientId(clientId);
         }
@@ -57,7 +59,9 @@ const HomeScreen = () => {
   return (
     <View className="flex-1">
       <View className="flex-row justify-between items-center p-4 bg-white shadow-md">
-        <Text className="text-lg font-bold text-gray-800">Reports</Text>
+        <Text className="text-lg font-bold text-gray-800">
+          {clientId}-{clientName}
+        </Text>
         <TouchableOpacity
           onPress={() => setIsGridView(!isGridView)}
           className="bg-gray-200 p-2 rounded-full"

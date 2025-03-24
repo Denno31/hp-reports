@@ -20,6 +20,7 @@ export const fetchLatestReports = async (date?: string, isMonthly = false) => {
     }
 
     let url = `${baseUrl}${resource}?client_id=${clientId}`;
+
     if (date) {
       url += `&selected_date=${date}`;
     }
@@ -37,7 +38,6 @@ export const fetchLatestReports = async (date?: string, isMonthly = false) => {
     }
 
     let files = await response.json();
-    console.log("Fetched reports:", files);
     return files;
   } catch (error) {
     console.error("Error fetching reports:", error);
