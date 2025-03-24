@@ -59,9 +59,12 @@ const HomeScreen = () => {
   return (
     <View className="flex-1">
       <View className="flex-row justify-between items-center p-4 bg-white shadow-md">
-        <Text className="text-lg font-bold text-gray-800">
-          {clientId}-{clientName}
-        </Text>
+        <View className="flex-1">
+          <Text className="text-lg font-bold text-gray-800 ">
+            {clientId}-{clientName}
+          </Text>
+        </View>
+
         <TouchableOpacity
           onPress={() => setIsGridView(!isGridView)}
           className="bg-gray-200 p-2 rounded-full"
